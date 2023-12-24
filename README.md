@@ -30,13 +30,34 @@ Isso irá baixar as dependências necessárias e iniciar a aplicação.
 
 ## Utilização
 
-A aplicação disponibiliza a rota `/danfe` do tipo `POST` que aceita dados no formato `multipart/form-data`, permitindo o envio de um arquivo XML para geração do PDF da DANFE.
+Requisição:
+- Método: POST
+- URL: http://localhost:5000/danfe
+- Tipo de Conteúdo: multipart/form-data
+- Parâmetros:
+    - invoice: Arquivo XML contendo os dados da nota fiscal.
+    - logo (opcional): Arquivo JPG ou PNG com a logo do cliente.
 
-Exemplo de requisição usando `cURL`:
+Exemplo de Requisição usando cURL:
 ```bash
-curl -X POST -H "Content-Type: multipart/form-data" -F "invoice=@caminho/do/arquivo.xml" http://localhost:5000/danfe -o danfe.pdf
+curl -X POST \
+-H "Content-Type: multipart/form-data" \
+-F "invoice=@caminho/do/arquivo.xml" \
+-F "logo=@caminho/da/logo.png" \
+http://localhost:5000/danfe -o danfe.pdf
 ```
-
 Resposta Esperada:
+Após a requisição bem-sucedida, você fará o download do arquivo PDF contendo a DANFE.
 
-Após a requisição, se tudo deu certo, você terá feito download do arquivo PDF da DANFE.
+
+### Observações:
+
+O parâmetro logo é opcional. Se não for fornecido, a DANFE será gerada sem a inclusão da logo do cliente. Caso seja fornecido, a logo será incorporada ao PDF gerado.
+
+Exemplo de Requisição sem Logo:
+```bash
+curl -X POST \
+-H "Content-Type: multipart/form-data" \
+-F "invoice=@caminho/do/arquivo.xml" \
+http://localhost:5000/danfe -o danfe.pdf
+```

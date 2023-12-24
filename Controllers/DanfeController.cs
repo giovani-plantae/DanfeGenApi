@@ -13,6 +13,7 @@ public class DanfeController
     {
         IFormCollection form = await context.Request.ReadFormAsync();
         IFormFile? invoiceFile = form.Files["invoice"];
+        IFormFile? logoFile = form.Files["logo"];
 
         if (invoiceFile == null || invoiceFile.Length == 0)
         {
@@ -20,9 +21,13 @@ public class DanfeController
             return;
         }
 
-        string invoice = await ReadInvoiceFileContent(invoiceFile);
+        Stream invoice = GetFormFileAsStream(invoiceFile);
 
-        Danfe danfe = GenerateDanfeFromInvoice(invoice);
+        Stream? companyLogo = null;
+        if (logoFile != null && logoFile.Length > 0)
+            companyLogo = new CompanyLogo(logoFile).GetStream();
+
+        Danfe danfe = GenerateDanfeFromInvoice(invoice, companyLogo);
         MemoryStream pdf = GeneratePdfFromDanfe(danfe);
 
         await SendPdfResponse(context, pdf);
@@ -34,16 +39,20 @@ public class DanfeController
         context.Response.WriteAsync("O arquivo 'invoice' é obrigatório na requisição.");
     }
 
-    private static async Task<string> ReadInvoiceFileContent(IFormFile invoiceFile)
+    private static Stream GetFormFileAsStream(IFormFile invoiceFile)
     {
         var reader = new StreamReader(invoiceFile.OpenReadStream());
-        return await reader.ReadToEndAsync();
+        return reader.BaseStream;
     }
 
-    private static Danfe GenerateDanfeFromInvoice(string invoice)
+    private static Danfe GenerateDanfeFromInvoice(Stream invoice, Stream? companyLogo)
     {
-        DanfeViewModel modelo = DanfeViewModelCreator.CriarDeStringXml(invoice);
+        DanfeViewModel modelo = DanfeViewModelCreator.CriarDeArquivoXml(invoice);
         var danfe = new Danfe(modelo);
+
+        if (companyLogo != null)
+            danfe.AdicionarLogoImagem(companyLogo);
+
         danfe.Gerar();
         return danfe;
     }
