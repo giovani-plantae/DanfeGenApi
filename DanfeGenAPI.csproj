@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="DanfeSharp" Version="1.0.0" />
+    <RuntimeHostConfigurationOption Include="System.Drawing.EnableUnixSupport" Value="true" />
   </ItemGroup>
 
 </Project>
