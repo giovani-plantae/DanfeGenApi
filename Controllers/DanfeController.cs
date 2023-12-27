@@ -48,6 +48,9 @@ public class DanfeController
     private static Danfe GenerateDanfeFromInvoice(Stream invoice, Stream? companyLogo)
     {
         DanfeViewModel modelo = DanfeViewModelCreator.CriarDeArquivoXml(invoice);
+
+        modelo.Emitente.NomeFantasia = null;
+
         var danfe = new Danfe(modelo);
 
         if (companyLogo != null)
@@ -68,7 +71,7 @@ public class DanfeController
     {
         var response = context.Response;
         response.Headers.Append("Content-Type", "application/pdf");
-        response.Headers.Append("Content-Disposition", "inline; filename=invoice.pdf");
+        response.Headers.Append("Content-Disposition", "inline; filename=danfe.pdf");
 
         pdf.Seek(0, SeekOrigin.Begin);
         await pdf.CopyToAsync(response.Body);
